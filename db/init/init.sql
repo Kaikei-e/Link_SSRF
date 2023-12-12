@@ -1,0 +1,12 @@
+CREATE SCHEMA
+IF NOT EXISTS `vul_db`;
+
+CREATE TABLE
+IF NOT EXISTS `vul_db`.`users`
+(
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR
+(255) NOT NULL,
+  profile_link VARCHAR
+(255) NOT NULL,
+);
