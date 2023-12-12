@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+<h1>Home</h1>
+<p>
+{{define "hello"}}
+    <h1>Hello, {{.}}</h1>
+{{end}}
+</p>
+<form action="/user" method="post">
+    <input type="url" name="url">
+    <input type="submit" value="Send">
+</body>
+</html>
