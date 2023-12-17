@@ -1,6 +1,21 @@
 version: "3.9"
 services:
-  web:
+  frontend:
+    build:
+      context: ./frontApp
+      dockerfile: Dockerfile
+    tty: true
+    ports:
+      - "4173:4173"
+      - "5173:5173"
+    volumes:
+      - ./frontApp/vul-app-front:/usr/src/app
+    restart: always
+    networks:
+      vul-net:
+        ipv4_address: 192.168.100.5
+
+  backend:
     build:
       context: ./vulApp
       dockerfile: Dockerfile
@@ -35,6 +50,22 @@ services:
     networks:
       vul-net:
         ipv4_address: 192.168.100.20
+
+  lb:
+    build:
+      context: ./lb
+      dockerfile: Dockerfile
+    tty: true
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./lb:/usr/share/nginx/html
+      - ./lb/config/nginx.conf:/etc/nginx.conf
+      - ./lb/nginx:/var/www/html
+    restart: always
+    networks:
+      vul-net:
+        ipv4_address: 192.168.100.50
 
 networks:
   vul-net:
