@@ -26,9 +26,9 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 }
 
 type User struct {
-	ID          int
-	Username    string
-	ProfileLink string
+	ID          int    `json:"id,omitempty"`
+	Username    string `json:"username"`
+	ProfileLink string `json:"profile_link"`
 }
 
 type AuthedUserListResponse struct {
@@ -59,13 +59,56 @@ func main() {
 		return getHomePage(c)
 	})
 
-	// authed := e.Group("/authed")
-	// {
-	// authed.GET("/admin", func(c echo.Context) error {
-	e.GET("/admin", func(c echo.Context) error {
-		return getAdminPage(c, conn)
+	apiV1 := e.Group("/api/v1")
+	apiV1.GET("/profile_link", func(c echo.Context) error {
+		slog.Info("GET /api/v1/myprofile", "Remote Addr", c.Request().RemoteAddr)
+		slog.Info("GET /api/v1/myprofile", "", c.Request().RequestURI)
+
+		return c.JSON(http.StatusOK, map[string]string{
+			"message": "success",
+		})
 	})
-	// }
+
+	apiV1.POST("/register", func(c echo.Context) error {
+		slog.Info("POST /api/v1/register", "Remote Addr", c.Request().RemoteAddr)
+		slog.Info("POST /api/v1/register", "", c.Request().RequestURI)
+
+		username := c.FormValue("username")
+		profileLink := c.FormValue("profile_link")
+
+		if username == "" || profileLink == "" {
+			slog.Error("POST /api/v1/register", "Error", "username or profile_link is empty")
+			return c.JSON(http.StatusBadRequest, map[string]string{
+				"message": "username or profile_link is empty",
+			})
+		}
+
+		tx, err := conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+		if err != nil {
+			slog.Error("Failed to begin transaction", "Error", err)
+		}
+
+		_, err = tx.ExecContext(ctx, "INSERT INTO vul_schema.users (username, profile_link) VALUES ($1, $2);", username, profileLink)
+		if err != nil {
+			slog.Error("Failed to insert user", "Error", err)
+			tx.Rollback()
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"message": "failed to insert user",
+			})
+		}
+
+		err = tx.Commit()
+		if err != nil {
+			slog.Error("Failed to commit transaction", "Error", err)
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"message": "failed to commit transaction",
+			})
+		}
+
+		return c.JSON(http.StatusOK, map[string]string{
+			"message": "success",
+		})
+	})
 
 	e.POST("/delete/:id", func(c echo.Context) error {
 		maybeID := c.Param("id")
@@ -80,6 +123,32 @@ func main() {
 
 		return deleteUser(id, c, conn)
 	})
+
+	// authed := e.Group("/authed")
+	// authed.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
+	// 	c.Redirect(http.StatusMovedPermanently, "/")
+
+	// 	return false, nil
+	// }))
+
+	// authed.GET("/admin", func(c echo.Context) error {
+	// 	return getAdminPage(c, conn)
+	// })
+
+	// authed.POST("/delete/:id", func(c echo.Context) error {
+
+	// 	maybeID := c.Param("id")
+	// 	slog.Info("POST /delete/:id", "Remote Addr", c.Request().RemoteAddr)
+	// 	slog.Info("POST /delete/:id", "", c.Request().RequestURI)
+
+	// 	id, err := strconv.Atoi(maybeID)
+	// 	if err != nil {
+	// 		slog.Error("Failed to convert string to int", "Error", err)
+	// 		c.Redirect(http.StatusBadRequest, "/")
+	// 	}
+
+	// 	return deleteUser(id, c, conn)
+	// })
 
 	e.Logger.Fatal(e.Start(port))
 }
