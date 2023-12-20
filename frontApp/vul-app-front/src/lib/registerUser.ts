@@ -8,6 +8,8 @@ export const registerUser = async (username: string, url: string) => {
 
   const endpoint = import.meta.env.VITE_API_ENDPOINT;
 
+  console.log("userStringify: ", JSON.stringify(user));
+
   const response = await fetch(endpoint + `/register`, {
     method: "POST",
     headers: {
