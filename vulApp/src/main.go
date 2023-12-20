@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"html/template"
 	"io"
 	"log"
@@ -27,6 +28,11 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 
 type User struct {
 	ID          int    `json:"id,omitempty"`
+	Username    string `json:"username" param:"username"`
+	ProfileLink string `json:"profile_link" param:"profile_link"`
+}
+
+type registerRequest struct {
 	Username    string `json:"username"`
 	ProfileLink string `json:"profile_link"`
 }
@@ -70,16 +76,13 @@ func main() {
 	})
 
 	apiV1.POST("/register", func(c echo.Context) error {
-		slog.Info("POST /api/v1/register", "Remote Addr", c.Request().RemoteAddr)
 		slog.Info("POST /api/v1/register", "", c.Request().RequestURI)
 
-		username := c.FormValue("username")
-		profileLink := c.FormValue("profile_link")
-
-		if username == "" || profileLink == "" {
-			slog.Error("POST /api/v1/register", "Error", "username or profile_link is empty")
+		var req registerRequest
+		if err := c.Bind(&req); err != nil {
+			slog.Error("Failed to bind request", "Error", err)
 			return c.JSON(http.StatusBadRequest, map[string]string{
-				"message": "username or profile_link is empty",
+				"message": "failed to bind request",
 			})
 		}
 
@@ -88,7 +91,8 @@ func main() {
 			slog.Error("Failed to begin transaction", "Error", err)
 		}
 
-		_, err = tx.ExecContext(ctx, "INSERT INTO vul_schema.users (username, profile_link) VALUES ($1, $2);", username, profileLink)
+		//TODO replace 2 args to 1 struct
+		_, err = tx.ExecContext(ctx, "INSERT INTO vul_schema.users (username, profile_link) VALUES ($1, $2);", req.Username, req.ProfileLink)
 		if err != nil {
 			slog.Error("Failed to insert user", "Error", err)
 			tx.Rollback()
