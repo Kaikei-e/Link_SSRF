@@ -8,6 +8,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"os"
 	"rssf/repository"
 	"strconv"
@@ -85,13 +86,20 @@ func main() {
 			})
 		}
 
+		u, err := url.Parse(req.ProfileLink)
+		if err != nil {
+			slog.Error("Failed to parse url", "Error", err)
+			return c.JSON(http.StatusBadRequest, map[string]string{
+				"message": "failed to parse url",
+			})
+		}
+
 		tx, err := conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
 		if err != nil {
 			slog.Error("Failed to begin transaction", "Error", err)
 		}
 
-		//TODO replace 2 args to 1 struct
-		_, err = tx.ExecContext(ctx, "INSERT INTO vul_schema.users (username, profile_link) VALUES ($1, $2);", req.Username, req.ProfileLink)
+		_, err = tx.ExecContext(ctx, "INSERT INTO vul_schema.users (username, profile_link) VALUES ($1, $2);", req.Username, u.String())
 		if err != nil {
 			slog.Error("Failed to insert user", "Error", err)
 			tx.Rollback()
@@ -109,7 +117,7 @@ func main() {
 		}
 
 		return c.JSON(http.StatusOK, map[string]string{
-			"message": "success",
+			"this url was registered": u.String(),
 		})
 	})
 
@@ -134,9 +142,9 @@ func main() {
 	// 	return false, nil
 	// }))
 
-	// authed.GET("/admin", func(c echo.Context) error {
-	// 	return getAdminPage(c, conn)
-	// })
+	e.GET("/admin", func(c echo.Context) error {
+		return getAdminPage(c, conn)
+	})
 
 	// authed.POST("/delete/:id", func(c echo.Context) error {
 
