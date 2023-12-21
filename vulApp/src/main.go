@@ -5,13 +5,10 @@ import (
 	"database/sql"
 	"html/template"
 	"io"
-	"log"
 	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
-	"rssf/repository"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -45,11 +42,11 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 
-	conn, err := repository.InitDBConn()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer conn.Close()
+	// conn, err := repository.InitDBConn()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer conn.Close()
 
 	e := echo.New()
 	port := ":9000"
@@ -75,6 +72,25 @@ func main() {
 		})
 	})
 
+	apiV1.GET("/users", func(c echo.Context) error {
+		users := []User{
+			{
+				ID:          1,
+				ProfileLink: "https://example.com",
+				Username:    "hoge",
+			},
+			{
+				ID:          2,
+				ProfileLink: "https://example.com",
+				Username:    "fuga",
+			}, // このカンマが必要です
+		}
+
+		return c.JSON(http.StatusOK, map[string][]User{
+			"users": users,
+		})
+	})
+
 	apiV1.POST("/register", func(c echo.Context) error {
 		slog.Info("POST /api/v1/register", "", c.Request().RequestURI)
 
@@ -94,27 +110,27 @@ func main() {
 			})
 		}
 
-		tx, err := conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
-		if err != nil {
-			slog.Error("Failed to begin transaction", "Error", err)
-		}
+		// tx, err := conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+		// if err != nil {
+		// 	slog.Error("Failed to begin transaction", "Error", err)
+		// }
 
-		_, err = tx.ExecContext(ctx, "INSERT INTO vul_schema.users (username, profile_link) VALUES ($1, $2);", req.Username, u.String())
-		if err != nil {
-			slog.Error("Failed to insert user", "Error", err)
-			tx.Rollback()
-			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"message": "failed to insert user",
-			})
-		}
+		// _, err = tx.ExecContext(ctx, "INSERT INTO vul_schema.users (username, profile_link) VALUES ($1, $2);", req.Username, u.String())
+		// if err != nil {
+		// 	slog.Error("Failed to insert user", "Error", err)
+		// 	tx.Rollback()
+		// 	return c.JSON(http.StatusInternalServerError, map[string]string{
+		// 		"message": "failed to insert user",
+		// 	})
+		// }
 
-		err = tx.Commit()
-		if err != nil {
-			slog.Error("Failed to commit transaction", "Error", err)
-			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"message": "failed to commit transaction",
-			})
-		}
+		// err = tx.Commit()
+		// if err != nil {
+		// 	slog.Error("Failed to commit transaction", "Error", err)
+		// 	return c.JSON(http.StatusInternalServerError, map[string]string{
+		// 		"message": "failed to commit transaction",
+		// 	})
+		// }
 
 		client := &http.Client{}
 		re, err := client.Do(&http.Request{
@@ -131,19 +147,19 @@ func main() {
 		return c.JSON(http.StatusOK, re)
 	})
 
-	e.POST("/delete/:id", func(c echo.Context) error {
-		maybeID := c.Param("id")
-		slog.Info("POST /delete/:id", "Remote Addr", c.Request().RemoteAddr)
-		slog.Info("POST /delete/:id", "", c.Request().RequestURI)
+	// e.POST("/delete/:id", func(c echo.Context) error {
+	// 	maybeID := c.Param("id")
+	// 	slog.Info("POST /delete/:id", "Remote Addr", c.Request().RemoteAddr)
+	// 	slog.Info("POST /delete/:id", "", c.Request().RequestURI)
 
-		id, err := strconv.Atoi(maybeID)
-		if err != nil {
-			slog.Error("Failed to convert string to int", "Error", err)
-			c.Redirect(http.StatusBadRequest, "/")
-		}
+	// 	id, err := strconv.Atoi(maybeID)
+	// 	if err != nil {
+	// 		slog.Error("Failed to convert string to int", "Error", err)
+	// 		c.Redirect(http.StatusBadRequest, "/")
+	// 	}
 
-		return deleteUser(id, c, conn)
-	})
+	// 	return deleteUser(id, c, conn)
+	// })
 
 	// authed := e.Group("/authed")
 	// authed.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
@@ -152,9 +168,9 @@ func main() {
 	// 	return false, nil
 	// }))
 
-	e.GET("/admin", func(c echo.Context) error {
-		return getAdminPage(c, conn)
-	})
+	// e.GET("/admin", func(c echo.Context) error {
+	// 	return getAdminPage(c, conn)
+	// })
 
 	// authed.POST("/delete/:id", func(c echo.Context) error {
 
