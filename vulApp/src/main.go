@@ -116,9 +116,19 @@ func main() {
 			})
 		}
 
-		return c.JSON(http.StatusOK, map[string]string{
-			"this url was registered": u.String(),
+		client := &http.Client{}
+		re, err := client.Do(&http.Request{
+			Method: http.MethodGet,
+			URL:    u,
 		})
+		if err != nil {
+			slog.Error("Failed to get profile", "Error", err)
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"message": "failed to get profile",
+			})
+		}
+
+		return c.JSON(http.StatusOK, re)
 	})
 
 	e.POST("/delete/:id", func(c echo.Context) error {
