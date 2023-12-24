@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"html/template"
 	"io"
 	"log/slog"
 	"net/http"
-	"net/url"
 	"os"
 
 	"github.com/labstack/echo/v4"
@@ -32,6 +32,11 @@ type User struct {
 type registerRequest struct {
 	Username    string `json:"username"`
 	ProfileLink string `json:"profile_link"`
+}
+
+type registerResponse struct {
+	Status  int    `json:"status"`
+	Message string `json:"message"`
 }
 
 type AuthedUserListResponse struct {
@@ -83,12 +88,10 @@ func main() {
 				ID:          2,
 				ProfileLink: "https://example.com",
 				Username:    "fuga",
-			}, // このカンマが必要です
+			},
 		}
 
-		return c.JSON(http.StatusOK, map[string][]User{
-			"users": users,
-		})
+		return c.JSON(http.StatusOK, users)
 	})
 
 	apiV1.POST("/register", func(c echo.Context) error {
@@ -102,13 +105,13 @@ func main() {
 			})
 		}
 
-		u, err := url.Parse(req.ProfileLink)
-		if err != nil {
-			slog.Error("Failed to parse url", "Error", err)
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"message": "failed to parse url",
-			})
-		}
+		// u, err := url.Parse(req.ProfileLink)
+		// if err != nil {
+		// 	slog.Error("Failed to parse url", "Error", err)
+		// 	return c.JSON(http.StatusBadRequest, map[string]string{
+		// 		"message": "failed to parse url",
+		// 	})
+		// }
 
 		// tx, err := conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
 		// if err != nil {
@@ -132,19 +135,48 @@ func main() {
 		// 	})
 		// }
 
-		client := &http.Client{}
-		re, err := client.Do(&http.Request{
-			Method: http.MethodGet,
-			URL:    u,
-		})
+		rq, err := http.NewRequest(http.MethodGet, req.ProfileLink, nil)
 		if err != nil {
 			slog.Error("Failed to get profile", "Error", err)
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"message": "failed to get profile",
 			})
 		}
+		cl := &http.Client{}
+		re, err := cl.Do(rq)
+		if err != nil {
+			slog.Error("Failed to get profile", "Error", err)
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"message": "failed to get profile",
+			})
+		}
+		defer re.Body.Close()
 
-		return c.JSON(http.StatusOK, re)
+		// client := &http.Client{}
+		// re, err := client.Do(&http.Request{
+		// 	Method: http.MethodGet,
+		// 	URL:    u,
+		// })
+		// if err != nil {
+		// 	slog.Error("Failed to get profile", "Error", err)
+		// 	return c.JSON(http.StatusInternalServerError, map[string]string{
+		// 		"message": "failed to get profile",
+		// 	})
+		// }
+		// defer re.Body.Close()
+
+		// rawHTMLBobyBytes := re.Body.Read()
+		rawHTMLBodyBytes := make([]byte, 300)
+		re.Body.Read(rawHTMLBodyBytes)
+
+		fmt.Println(string(rawHTMLBodyBytes))
+
+		res := &registerResponse{
+			Status:  http.StatusOK,
+			Message: string(rawHTMLBodyBytes),
+		}
+		// rawHTMLBody := string(rawHTMLBobyBytes)
+		return c.JSON(http.StatusOK, res)
 	})
 
 	// e.POST("/delete/:id", func(c echo.Context) error {

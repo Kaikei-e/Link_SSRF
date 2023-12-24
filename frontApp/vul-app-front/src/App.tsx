@@ -5,16 +5,20 @@ import { registerUser } from "./lib/registerUser";
 function App() {
   const [username, setUsername] = React.useState("");
   const [url, setUrl] = React.useState("");
+  const [sitePreview, setSitePreview] = React.useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const res = await registerUser(username, url);
+    const htmlData = res.message;
 
-    console.log(res);
+    console.log(htmlData);
 
     if (res.status === 200) {
       alert("User registered");
+
+      setSitePreview(htmlData);
     } else {
       alert("Error registering user");
     }
@@ -45,6 +49,14 @@ function App() {
           <button type="submit">Submit</button>
         </div>
       </form>
+      <div>
+        <h3>Site Preview</h3>
+        <div>
+          <p>
+            <pre>{sitePreview}</pre>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
