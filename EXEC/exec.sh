@@ -11,7 +11,7 @@ HEADERS="-H 'Connection: keep-alive' -H 'Keep-Alive: timeout=5, max=100'"
 # curl -vvv -X GET $HEADERS http://localhost:8080?url=localhost:9000/admin
 
 # pattern3
-curl -vvv -X POST $HEADERS -H "Content-Type: application/json" -d  '{"username":"aaaa", "profile_link":"http://localhost?url=file://etc/hosts"}' $URL
+curl -vvv -X POST $HEADERS -H "Content-Type: application/json" -d  '{"username":"aaaa", "profile_link":"http://localhost:9000/api/v1/users"}' $URL
 
 
 # Combining two requests in one curl command
