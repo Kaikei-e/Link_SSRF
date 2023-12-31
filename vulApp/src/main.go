@@ -1,8 +1,6 @@
 package main
 
 import (
-	"context"
-	"database/sql"
 	"fmt"
 	"html/template"
 	"io"
@@ -13,7 +11,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-var ctx = context.Background()
+// var ctx = context.Background()
 
 type Template struct {
 	templates *template.Template
@@ -181,56 +179,56 @@ func main() {
 	e.Logger.Fatal(e.Start(port))
 }
 
-func getAdminPage(c echo.Context, conn *sql.DB) error {
-	slog.Info("GET /admin", "Remote Addr", c.Request().RemoteAddr)
-	slog.Info("GET /admin", "", c.Request().RequestURI)
+// func getAdminPage(c echo.Context, conn *sql.DB) error {
+// 	slog.Info("GET /admin", "Remote Addr", c.Request().RemoteAddr)
+// 	slog.Info("GET /admin", "", c.Request().RequestURI)
 
-	rows, err := conn.Query("SELECT * FROM vul_schema.users;")
-	if err != nil {
-		slog.Error("Failed to bind the results", "Error", err)
-	}
-	defer rows.Close()
+// 	rows, err := conn.Query("SELECT * FROM vul_schema.users;")
+// 	if err != nil {
+// 		slog.Error("Failed to bind the results", "Error", err)
+// 	}
+// 	defer rows.Close()
 
-	var users []User
-	for rows.Next() {
-		var u User
-		err := rows.Scan(&u.ID, &u.Username, &u.ProfileLink)
-		if err != nil {
-			slog.Error("Bindng result", "Error", err)
-		}
-		users = append(users, u)
-	}
+// 	var users []User
+// 	for rows.Next() {
+// 		var u User
+// 		err := rows.Scan(&u.ID, &u.Username, &u.ProfileLink)
+// 		if err != nil {
+// 			slog.Error("Bindng result", "Error", err)
+// 		}
+// 		users = append(users, u)
+// 	}
 
-	res := &AuthedUserListResponse{
-		Users: users,
-	}
+// 	res := &AuthedUserListResponse{
+// 		Users: users,
+// 	}
 
-	return c.Render(http.StatusOK, "admin", res)
-}
+// 	return c.Render(http.StatusOK, "admin", res)
+// }
 
-func deleteUser(id int, c echo.Context, conn *sql.DB) error {
-	slog.Info("POST /delete/:id", "Remote Addr", c.Request().RemoteAddr)
+// func deleteUser(id int, c echo.Context, conn *sql.DB) error {
+// 	slog.Info("POST /delete/:id", "Remote Addr", c.Request().RemoteAddr)
 
-	tx, err := conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
-	if err != nil {
-		slog.Error("Failed to begin transaction", "Error", err)
-	}
+// 	tx, err := conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+// 	if err != nil {
+// 		slog.Error("Failed to begin transaction", "Error", err)
+// 	}
 
-	_, err = tx.ExecContext(ctx, "DELETE FROM vul_schema.users WHERE id = $1;", id)
-	if err != nil {
-		slog.Error("Failed to delete user", "Error", err)
-		tx.Rollback()
-		return c.Redirect(http.StatusInternalServerError, "/")
-	}
+// 	_, err = tx.ExecContext(ctx, "DELETE FROM vul_schema.users WHERE id = $1;", id)
+// 	if err != nil {
+// 		slog.Error("Failed to delete user", "Error", err)
+// 		tx.Rollback()
+// 		return c.Redirect(http.StatusInternalServerError, "/")
+// 	}
 
-	err = tx.Commit()
-	if err != nil {
-		slog.Error("Failed to commit transaction", "Error", err)
-		return c.Redirect(http.StatusInternalServerError, "/")
-	}
+// 	err = tx.Commit()
+// 	if err != nil {
+// 		slog.Error("Failed to commit transaction", "Error", err)
+// 		return c.Redirect(http.StatusInternalServerError, "/")
+// 	}
 
-	return c.JSON(http.StatusOK, map[string]string{
-		"message": "success",
-	})
+// 	return c.JSON(http.StatusOK, map[string]string{
+// 		"message": "success",
+// 	})
 
-}
+// }
