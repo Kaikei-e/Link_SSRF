@@ -15,3 +15,7 @@
 SSRF再現までできました
 
 ## Reference
+
+- https://redfoxsec.com/blog/ssrf/
+- https://owasp.org/API-Security/editions/2023/en/0x11-t10/
+- https://www.blackhat.com/docs/us-17/thursday/us-17-Tsai-A-New-Era-Of-SSRF-Exploiting-URL-Parser-In-Trending-Programming-Languages.pdf
