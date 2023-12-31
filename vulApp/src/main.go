@@ -55,17 +55,6 @@ func main() {
 
 	e := echo.New()
 	port := ":9000"
-	t := &Template{
-		templates: template.Must(template.ParseGlob("public/*.html")),
-	}
-	e.Renderer = t
-
-	e.GET("/", func(c echo.Context) error {
-		slog.Info("GET /", "Remote Addr", c.Request().RemoteAddr)
-		slog.Info("GET /", "", c.Request().RequestURI)
-
-		return getHomePage(c)
-	})
 
 	apiV1 := e.Group("/api/v1")
 	apiV1.GET("/profile_link", func(c echo.Context) error {
@@ -220,10 +209,6 @@ func main() {
 	// })
 
 	e.Logger.Fatal(e.Start(port))
-}
-
-func getHomePage(c echo.Context) error {
-	return c.Render(http.StatusOK, "hello", "hoge")
 }
 
 func getAdminPage(c echo.Context, conn *sql.DB) error {
