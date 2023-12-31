@@ -70,12 +70,12 @@ func main() {
 		users := []User{
 			{
 				ID:          1,
-				ProfileLink: "https://example.com",
+				ProfileLink: "https://owasp.org/API-Security/editions/2023/en/0x11-t10/",
 				Username:    "hoge",
 			},
 			{
 				ID:          2,
-				ProfileLink: "https://example.com",
+				ProfileLink: "https://owasp.org/API-Security/editions/2023/en/0x11-t10/",
 				Username:    "fuga",
 			},
 		}
