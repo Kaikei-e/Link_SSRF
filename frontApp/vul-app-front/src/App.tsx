@@ -13,8 +13,6 @@ function App() {
     const res = await registerUser(username, url);
     const htmlData = res.message;
 
-    console.log(htmlData);
-
     if (res.status === 200) {
       alert("User registered");
 
