@@ -133,7 +133,7 @@ func main() {
 		// defer re.Body.Close()
 
 		// rawHTMLBobyBytes := re.Body.Read()
-		rawHTMLBodyBytes := make([]byte, 300)
+		rawHTMLBodyBytes := make([]byte, 500)
 		re.Body.Read(rawHTMLBodyBytes)
 
 		fmt.Println(string(rawHTMLBodyBytes))
