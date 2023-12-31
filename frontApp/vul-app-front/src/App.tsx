@@ -23,11 +23,28 @@ function App() {
   };
 
   return (
-    <div>
+    <div
+      style={{
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100%",
+        width: "100%",
+        display: "block",
+      }}
+    >
       <h1>Home</h1>
       <h3>Hello </h3>
+      <h3>Register</h3>
       <form onSubmit={handleSubmit}>
-        <div className="formStyle">
+        <div
+          style={{
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            display: "flex",
+          }}
+        >
           <label htmlFor="username">Name</label>
           <input
             type="text"
@@ -47,11 +64,23 @@ function App() {
           <button type="submit">Submit</button>
         </div>
       </form>
-      <div>
+      <div
+        style={{
+          width: "100%",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          display: "flex",
+        }}
+      >
         <h3>Site Preview</h3>
         <div>
-          <p>
-            <pre>{sitePreview}</pre>
+          <p
+            style={{
+              wordBreak: "break-all",
+            }}
+          >
+            {sitePreview}
           </p>
         </div>
       </div>
