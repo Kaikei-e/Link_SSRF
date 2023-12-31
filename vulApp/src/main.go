@@ -94,41 +94,11 @@ func main() {
 			})
 		}
 
-		// u, err := url.Parse(req.ProfileLink)
-		// if err != nil {
-		// 	slog.Error("Failed to parse url", "Error", err)
-		// 	return c.JSON(http.StatusBadRequest, map[string]string{
-		// 		"message": "failed to parse url",
-		// 	})
-		// }
-
-		// tx, err := conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
-		// if err != nil {
-		// 	slog.Error("Failed to begin transaction", "Error", err)
-		// }
-
-		// _, err = tx.ExecContext(ctx, "INSERT INTO vul_schema.users (username, profile_link) VALUES ($1, $2);", req.Username, u.String())
-		// if err != nil {
-		// 	slog.Error("Failed to insert user", "Error", err)
-		// 	tx.Rollback()
-		// 	return c.JSON(http.StatusInternalServerError, map[string]string{
-		// 		"message": "failed to insert user",
-		// 	})
-		// }
-
-		// err = tx.Commit()
-		// if err != nil {
-		// 	slog.Error("Failed to commit transaction", "Error", err)
-		// 	return c.JSON(http.StatusInternalServerError, map[string]string{
-		// 		"message": "failed to commit transaction",
-		// 	})
-		// }
-
 		rq, err := http.NewRequest(http.MethodGet, req.ProfileLink, nil)
 		if err != nil {
-			slog.Error("Failed to get profile", "Error", err)
+			slog.Error("Failed to create the request", "Error", err)
 			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"message": "failed to get profile",
+				"message": "failed to get profile link",
 			})
 		}
 		cl := &http.Client{}
@@ -136,7 +106,7 @@ func main() {
 		if err != nil {
 			slog.Error("Failed to get profile", "Error", err)
 			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"message": "failed to get profile",
+				"message": "failed to get profile link",
 			})
 		}
 		defer re.Body.Close()
