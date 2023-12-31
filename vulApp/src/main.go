@@ -76,6 +76,16 @@ func main() {
 				ProfileLink: "https://owasp.org/API-Security/editions/2023/en/0x11-t10/",
 				Username:    "fuga",
 			},
+			{
+				ID:          3,
+				ProfileLink: "https://owasp.org/API-Security/editions/2023/en/0x11-t10/",
+				Username:    "piyo",
+			},
+			{
+				ID:          4,
+				ProfileLink: "https://owasp.org/API-Security/editions/2023/en/0x11-t10/",
+				Username:    "hogehoge",
+			},
 		}
 
 		return c.JSON(http.StatusOK, users)
