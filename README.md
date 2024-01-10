@@ -10,9 +10,22 @@
 本アプリケーション及び関連記事は、セキュアコーディングの啓蒙のために作成されたものであり、悪意を持って利用することは禁止します。
 自身のローカル環境以外での試用は法律で罰せられる可能性がありますので、ご注意ください。
 
-## FYI
+## 環境構築
 
-SSRF再現までできました
+`/frontApp/.env`に`VITE_API_URL`を設定してください。
+
+
+```.env
+VITE_API_ENDPOINT=http://localhost:8080/api/v1
+```
+
+### フロントエンドのアプリをビルドする
+
+```bash
+$ cd frontApp/vul-app-front
+$ npm install
+$ npm run build
+```
 
 ## Reference
 
